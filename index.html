@@ -1,1 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f7fb">
+	<meta name="description" content="Environmental sensor readings and cloud monitoring dashboard.">
+	<title>Environmental Monitor | Cloud Dashboard</title>
+	<link rel="stylesheet" href="css/style.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+	<script src="js/dashboard.js" defer></script>
+</head>
+<body>
+	<div class="app-shell">
+		<aside class="sidebar" id="sidebar">
+			<a class="brand" href="#overview" aria-label="Environmental Monitor home">
+				<span class="brand-mark" aria-hidden="true">
+					<svg viewBox="0 0 32 32" fill="none"><path d="M16 3.5C12.2 9.1 7 14.3 7 20a9 9 0 0 0 18 0c0-5.7-5.2-10.9-9-16.5Z" fill="currentColor"/><path d="M11.5 21.3c.4 2.2 2 3.6 4.3 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+				</span>
+				<span class="brand-copy"><strong>TerraSense</strong><small>Environmental monitor</small></span>
+			</a>
 
+			<div class="nav-label">WORKSPACE</div>
+			<nav class="main-nav" aria-label="Main navigation">
+				<a class="nav-link active" href="#overview"><span class="nav-icon">◫</span>Overview</a>
+				<a class="nav-link" href="#analytics"><span class="nav-icon">▥</span>Analytics</a>
+				<a class="nav-link" href="#history"><span class="nav-icon">◷</span>Reading history</a>
+				<a class="nav-link" href="#alerts"><span class="nav-icon">♧</span>Alerts <span class="nav-count" id="alert-nav-count">0</span></a>
+			</nav>
+
+			<div class="sidebar-device">
+				<div class="side-device-heading"><span class="pulse-dot" id="sidebar-dot"></span><span>DATA SOURCE</span></div>
+				<strong id="sidebar-source">Connecting to API</strong>
+				<small id="sidebar-device-name">Waiting for device ID</small>
+				<span class="source-caption" id="sidebar-source-caption">Sensor data will be labeled simulated</span>
+			</div>
+
+			<div class="sidebar-bottom">
+				<div class="cloud-tag"><span class="cloud-icon">☁</span><span><b>AWS Cloud Monitoring</b><small>IoT · Lambda · S3</small></span></div>
+				<p>Project demonstration<br><span>B.Tech · Cloud Computing</span></p>
+			</div>
+		</aside>
+
+		<main class="main-content" id="overview">
+			<header class="topbar">
+				<button class="menu-button" id="menu-button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+				<div class="breadcrumb"><span>Workspace</span><b>/</b><strong>Overview</strong></div>
+				<div class="topbar-right">
+					<div class="cloud-label"><span class="cloud-label-icon">☁</span><span>AWS Cloud Monitoring</span></div>
+					<div class="top-divider"></div>
+					<div class="last-updated"><small>LAST READING RECEIVED</small><span id="last-updated">Loading from AWS API…</span></div>
+					<button class="refresh-button" id="refresh-button" type="button"><span class="refresh-icon">↻</span><span>Refresh</span></button>
+				</div>
+			</header>
+
+			<div class="page-content">
+				<section class="page-heading">
+					<div>
+						<p class="eyebrow">ENVIRONMENTAL INTELLIGENCE</p>
+						<h1>Monitoring overview</h1>
+						<p class="page-subtitle">Track temperature, humidity, and incoming sensor activity.</p>
+					</div>
+					<div class="connection-pill" id="api-indicator"><span class="status-dot"></span><span id="api-indicator-text">Loading…</span></div>
+				</section>
+
+				<section class="data-notice" id="data-notice" aria-live="polite">
+					<span class="notice-icon" aria-hidden="true">ⓘ</span>
+					<p><strong id="notice-title">Loading simulated sensor data</strong><span id="notice-message">Requesting readings from the AWS API. Physical ESP32 hardware is not connected; returned readings are labeled simulated.</span></p>
+					<span class="notice-tag" id="notice-tag">LOADING</span>
+				</section>
+
+				<section class="metric-grid" aria-label="Current environmental metrics">
+					<article class="metric-card temperature-card">
+						<div class="metric-top"><span class="metric-label">Current temperature</span><span class="metric-icon temp-icon">℃</span></div>
+						<div class="metric-value"><span id="temperature-value">—</span><span class="metric-unit">°C</span></div>
+						<div class="metric-foot"><span class="metric-hint">Latest recorded reading</span><span class="metric-trend" id="temperature-trend">—</span></div>
+						<div class="metric-accent"></div>
+					</article>
+					<article class="metric-card humidity-card">
+						<div class="metric-top"><span class="metric-label">Current humidity</span><span class="metric-icon humidity-icon">◌</span></div>
+						<div class="metric-value"><span id="humidity-value">—</span><span class="metric-unit">%</span></div>
+						<div class="metric-foot"><span class="metric-hint">Latest recorded reading</span><span class="metric-trend" id="humidity-trend">—</span></div>
+						<div class="metric-accent"></div>
+					</article>
+					<article class="metric-card status-card">
+						<div class="metric-top"><span class="metric-label">Environmental status</span><span class="metric-icon status-icon">⌁</span></div>
+						<div class="metric-value status-value"><span class="status-indicator" id="environment-dot"></span><span id="environment-status">Waiting</span></div>
+						<div class="metric-foot"><span class="metric-hint">Based on latest record</span><span class="status-note" id="status-note">No reading</span></div>
+						<div class="metric-accent"></div>
+					</article>
+					<article class="metric-card device-card">
+						<div class="metric-top"><span class="metric-label">Device connection</span><span class="metric-icon device-icon">⌁</span></div>
+						<div class="metric-value status-value"><span class="status-indicator neutral-dot" id="device-dot"></span><span id="device-status">Unknown</span></div>
+						<div class="metric-foot"><span class="metric-hint">S3 data cannot prove device online</span><span class="status-note" id="device-note">Not reported</span></div>
+						<div class="metric-accent"></div>
+					</article>
+					<article class="metric-card readings-card">
+						<div class="metric-top"><span class="metric-label">Total sensor readings</span><span class="metric-icon readings-icon">▤</span></div>
+						<div class="metric-value"><span id="reading-count">0</span></div>
+						<div class="metric-foot"><span class="metric-hint">Records currently loaded</span><span class="count-caption" id="count-caption">Demo sample</span></div>
+						<div class="metric-accent"></div>
+					</article>
+				</section>
+
+				<section class="charts-section" id="analytics">
+					<div class="section-heading"><div><p class="eyebrow">SENSOR TRENDS</p><h2>Environmental analytics</h2></div><span class="chart-period" id="chart-period">Recent readings</span></div>
+					<div class="chart-grid">
+						<article class="panel chart-panel temperature-chart-panel"><div class="panel-heading"><div><h3>Temperature history</h3><p>Temperature over time</p></div><span class="chart-legend"><i class="legend-temp"></i>Temperature (°C)</span></div><div class="chart-wrap"><canvas id="temperature-chart" aria-label="Line chart of temperature over time" role="img"></canvas></div></article>
+						<article class="panel chart-panel humidity-chart-panel"><div class="panel-heading"><div><h3>Humidity history</h3><p>Humidity over time</p></div><span class="chart-legend"><i class="legend-hum"></i>Humidity (%)</span></div><div class="chart-wrap"><canvas id="humidity-chart" aria-label="Bar chart of humidity over time" role="img"></canvas></div></article>
+						<article class="panel chart-panel comparison-panel"><div class="panel-heading"><div><h3>Temperature & humidity</h3><p>Compare readings on one timeline</p></div><div class="comparison-legend"><span><i class="legend-temp"></i>Temp °C</span><span><i class="legend-hum"></i>Humidity %</span></div></div><div class="chart-wrap comparison-chart-wrap"><canvas id="comparison-chart" aria-label="Comparison chart for temperature and humidity" role="img"></canvas></div></article>
+					</div>
+				</section>
+
+				<section class="lower-grid">
+					<article class="panel alerts-panel" id="alerts">
+						<div class="panel-heading"><div><p class="eyebrow">THRESHOLD WATCH</p><h2>Environmental alerts</h2></div><span class="alert-total" id="alert-total">0 active</span></div>
+						<div class="alert-list" id="alert-list"><div class="empty-state">No readings available yet.</div></div>
+						<p class="alert-footnote">Temperature thresholds: low &lt; 18°C · normal 18–30°C · high &gt; 30°C</p>
+					</article>
+					<article class="panel source-panel">
+						<div class="panel-heading"><div><p class="eyebrow">INGESTION STATUS</p><h2>Cloud data source</h2></div><span class="source-icon">⌁</span></div>
+						<div class="source-flow"><div class="flow-step"><span class="flow-mark iot-mark">⌁</span><span><b>AWS IoT Core</b><small>sdk/test/python</small></span><i class="flow-state"></i></div><div class="flow-line"></div><div class="flow-step"><span class="flow-mark lambda-mark">λ</span><span><b>Lambda processor</b><small>EnvironmentalSensorProcessor</small></span><i class="flow-state"></i></div><div class="flow-line"></div><div class="flow-step"><span class="flow-mark s3-mark">▰</span><span><b>Private S3 storage</b><small>environmental-sensor-data-2026-demo</small></span><i class="flow-state"></i></div></div>
+						<div class="source-footer"><span class="source-live-dot" id="source-live-dot"></span><span id="source-status">Connecting to AWS API…</span></div>
+					</article>
+				</section>
+
+				<section class="panel history-panel" id="history">
+					<div class="panel-heading history-heading"><div><p class="eyebrow">RECORD LOG</p><h2>Sensor reading history</h2></div><span class="table-record-count" id="table-record-count">0 records</span></div>
+					<div class="table-scroll"><table><thead><tr><th>TIME RECEIVED</th><th>DEVICE</th><th>TEMPERATURE</th><th>HUMIDITY</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="history-body"><tr><td class="empty-table" colspan="6">No readings loaded.</td></tr></tbody></table></div>
+					<div class="table-footer"><span id="table-summary">Showing 0 readings</span><span>Times displayed in your local timezone</span></div>
+				</section>
+				<footer class="page-footer"><span>TerraSense · IoT Environmental Monitoring Dashboard</span><span>API readings are labeled simulated; physical ESP32 hardware is not connected.</span></footer>
+			</div>
+		</main>
+	</div>
+	<div class="sidebar-overlay" id="sidebar-overlay"></div>
+</body>
+</html>
